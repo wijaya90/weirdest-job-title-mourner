@@ -7,19 +7,32 @@ to grieve at the funerals of complete strangers. A real odd job
 dead are strangers, so the grief is strictly professional.
 """
 import os
-import sys
 
 TITLE = "Professional Mourner for Funerals of Complete Strangers"
 
+def validate(title):
+    """Check the 1-60 char single-line contract.
+
+    Returns the title unchanged when it passes; raises SystemExit
+    with a diagnostic otherwise, so a bad title can never reach
+    the output file.
+    """
+    if not isinstance(title, str):
+        raise SystemExit("entry must be text")
+    if not title.strip():
+        raise SystemExit("entry must not be blank")
+    if len(title) > 60:
+        raise SystemExit(f"entry too long: {len(title)} chars (max 60)")
+    if "\n" in title or "\r" in title:
+        raise SystemExit("entry must be a single line")
+    return title
+
 def main():
-    # Gate: UTF-8 text of 1 to 60 characters, not only white space.
-    if not TITLE.strip() or len(TITLE) > 60 or "\n" in TITLE:
-        print(f"entry violates gate: {len(TITLE)} chars", file=sys.stderr)
-        raise SystemExit(1)
+    title = validate(TITLE)
     out_dir = os.environ.get("OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     with open(os.path.join(out_dir, "entry.txt"), "w", encoding="utf-8") as f:
-        f.write(TITLE)
+        f.write(title)
 
 if __name__ == "__main__":
     main()
